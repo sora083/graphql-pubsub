@@ -72,7 +72,7 @@ type QueryResolver interface {
 	Users(ctx context.Context) ([]string, error)
 }
 type SubscriptionResolver interface {
-	MessagePosted(ctx context.Context, user string) (<-chan *Message, error)
+	MessagePosted(ctx context.Context, user string) (<-chan Message, error)
 	UserJoined(ctx context.Context, user string) (<-chan string, error)
 }
 
