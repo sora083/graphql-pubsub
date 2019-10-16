@@ -44,16 +44,6 @@ func (r *Resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
 
-// Query returns a resolver for query.
-func (r *Resolver) Query() QueryResolver {
-	return &queryResolver{r}
-}
-
-// Subscription returns a resolver for subsctiption.
-func (r *Resolver) Subscription() SubscriptionResolver {
-	return &subscriptionResolver{r}
-}
-
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) PostMessage(ctx context.Context, user string, message string) (*Message, error) {
@@ -65,7 +55,8 @@ func (r *mutationResolver) PostMessage(ctx context.Context, user string, message
 		return nil, errors.New("This user does not exists")
 	}
 
-	// extend session expire
+	// ユーザー情報はAFK(Away From Keyboard)対策で60minで削除されるようにしている。
+	// メッセージの投稿を行った場合はExpireまでの時間をリセットする。
 	val, err := r.redisClient.SetXX(user, user, 60*time.Minute).Result()
 	if err != nil {
 		log.Println(err)
@@ -115,6 +106,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, user string) (string,
 	return user, nil
 }
 
+// Query returns a resolver for query.
+func (r *Resolver) Query() QueryResolver {
+	return &queryResolver{r}
+}
+
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) Users(ctx context.Context) ([]string, error) {
@@ -128,6 +124,11 @@ func (r *queryResolver) Users(ctx context.Context) ([]string, error) {
 
 	return users, nil
 
+}
+
+// Subscription returns a resolver for subsctiption.
+func (r *Resolver) Subscription() SubscriptionResolver {
+	return &subscriptionResolver{r}
 }
 
 type subscriptionResolver struct{ *Resolver }

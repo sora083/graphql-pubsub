@@ -13,6 +13,11 @@ go build
 ./scripts
 ```
 
+```
+cd graphql
+go run scripts/gqlgen.go init
+```
+
 ### reference
 ####
 [GraphQL SubscriptionsとRedis PubSubを使ってリアルタイムチャットサーバーを作る](https://qiita.com/p1ass/items/462209fe73ece1238d85)
@@ -30,7 +35,53 @@ brew services start redis
 http://localhost:8000
 ```
 
+### queries
+#### reqd
+```
+query {
+  users
+}
+```
+
+```
+query all {
+  users
+}
+```
+
+#### publish
+```
+mutation createUser {
+  createUser(user: "test")
+}
+```
+
+```
+mutation postMessage {
+  postMessage(user: "test", message: "test message") {
+    user,
+    message
+  }
+}
+```
+
+#### subscribe
+```
+subscription {
+  messagePosted(user: "test") {
+    user, message
+  }
+}
+```
+
+```
+subscription {
+  userJoined(user: "test")
+}
+```
+
 ### TODO
 * バイナリをgit管理外にする
 * generateで「SubscriptionResolver」が期待と違うものになる・・
 * 環境変数化
+* messagePostedのsubscriptionがうまく動かない・・
