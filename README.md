@@ -8,12 +8,6 @@ go mod init github.com/sora083/graphql-pubsub
 
 ####  generate
 ```
-cd graphql/scripts
-go build
-./scripts
-```
-
-```
 cd graphql
 go run scripts/gqlgen.go init
 ```
@@ -36,7 +30,7 @@ http://localhost:8000
 ```
 
 ### queries
-#### reqd
+#### read
 ```
 query {
   users

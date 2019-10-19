@@ -25,7 +25,7 @@ func NewGraphQLConfig(redisClient *redis.Client) Config {
 // Resolver implements ResolverRoot interface.
 type Resolver struct {
 	redisClient     *redis.Client
-	messageChannels map[string]chan Message
+	messageChannels map[string]chan *Message
 	userChannels    map[string]chan string
 	mutex           sync.Mutex
 }
@@ -33,7 +33,7 @@ type Resolver struct {
 func newResolver(redisClient *redis.Client) *Resolver {
 	return &Resolver{
 		redisClient:     redisClient,
-		messageChannels: map[string]chan Message{},
+		messageChannels: map[string]chan *Message{},
 		userChannels:    map[string]chan string{},
 		mutex:           sync.Mutex{},
 	}
@@ -133,7 +133,7 @@ func (r *Resolver) Subscription() SubscriptionResolver {
 
 type subscriptionResolver struct{ *Resolver }
 
-func (r *subscriptionResolver) MessagePosted(ctx context.Context, user string) (<-chan Message, error) {
+func (r *subscriptionResolver) MessagePosted(ctx context.Context, user string) (<-chan *Message, error) {
 	isLogined, err := r.checkLogin(user)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (r *subscriptionResolver) MessagePosted(ctx context.Context, user string) (
 		return nil, errors.New("This user has not been created")
 	}
 
-	messageChan := make(chan Message, 1)
+	messageChan := make(chan *Message, 1)
 	r.mutex.Lock()
 	r.messageChannels[user] = messageChan
 	r.mutex.Unlock()
@@ -226,7 +226,7 @@ func (r *Resolver) startSubscribingRedis() {
 				// Notify new message.
 				r.mutex.Lock()
 				for _, ch := range r.messageChannels {
-					ch <- m
+					ch <- &m
 				}
 				r.mutex.Unlock()
 
